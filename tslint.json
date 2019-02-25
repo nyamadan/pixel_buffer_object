@@ -1,9 +1,10 @@
 {
-    "defaultSeverity": "warning",
-    "jsRules": {},
-    "rules": {
-        "no-empty-interface": false,
-        "no-bitwise": false,
-    },
-    "rulesDirectory": []
+  "defaultSeverity": "warning",
+  "jsRules": {},
+  "extends": "tslint:recommended",
+  "rules": {
+    "no-empty-interface": false,
+    "no-bitwise": false
+  },
+  "rulesDirectory": []
 }

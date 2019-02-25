@@ -26,7 +26,6 @@ const createApp = () => {
   requestAnimationFrame(render);
 
   return gl.canvas;
-}
+};
 
 document.body.appendChild(createApp());
-

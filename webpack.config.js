@@ -1,4 +1,4 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const options = {
   mode: process.env["NODE_ENV"] || "development",
@@ -14,18 +14,33 @@ const options = {
   },
   module: {
     rules: [
+      {
+        test: /\.ts$/,
+        enforce: "pre",
+        use: [
+          {
+            loader: "tslint-loader",
+            options: {
+              /* Loader options go here */
+            }
+          }
+        ]
+      },
       { test: /\.tsx?$/, loader: "ts-loader" },
       {
         test: /\.css$/,
-        use: [{
-          loader: "style-loader" // creates style nodes from JS strings
-        }, {
-          loader: "css-loader", // translates CSS into CommonJS
-          options: {
-            sourceMap: process.env["NODE_ENV"] != "production",
-            modules: true,
+        use: [
+          {
+            loader: "style-loader" // creates style nodes from JS strings
+          },
+          {
+            loader: "css-loader", // translates CSS into CommonJS
+            options: {
+              sourceMap: process.env["NODE_ENV"] != "production",
+              modules: true
+            }
           }
-        }]
+        ]
       }
     ]
   },
@@ -36,7 +51,6 @@ const options = {
     })
   ]
 };
-
 
 if (options.mode !== "production") {
   options.devtool = "source-map";
