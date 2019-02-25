@@ -69,20 +69,17 @@ const draw = (
 
 const readAndWritePbo = (
   gl: WebGL2RenderingContext,
-  pixelBuffers: ReadonlyArray<WebGLBuffer>,
-  readIndex: number,
-  writeIndex: number,
-  dstBuffer: Uint8Array): [number, number] => {
+  dstPixels: Uint8Array,
+  readBuffer: WebGLBuffer,
+  writeBuffer: WebGLBuffer) => {
 
-  gl.bindBuffer(gl.PIXEL_PACK_BUFFER, pixelBuffers[writeIndex]);
+  gl.bindBuffer(gl.PIXEL_PACK_BUFFER, writeBuffer);
   gl.readPixels(0, 0, gl.canvas.width, gl.canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, 0);
   gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
 
-  gl.bindBuffer(gl.PIXEL_PACK_BUFFER, pixelBuffers[readIndex]);
-  gl.getBufferSubData(gl.PIXEL_PACK_BUFFER, 0, dstBuffer);
+  gl.bindBuffer(gl.PIXEL_PACK_BUFFER, readBuffer);
+  gl.getBufferSubData(gl.PIXEL_PACK_BUFFER, 0, dstPixels);
   gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
-
-  return [writeIndex, readIndex];
 };
 
 const readPixels = (
@@ -127,14 +124,11 @@ const createApp = () => {
     viewport(gl);
     clear(gl);
 
-    const uniforms = {
-      resolution: [gl.canvas.width, gl.canvas.height],
-    };
-
-    draw(gl, programInfo, bufferInfo, uniforms);
+    draw(gl, programInfo, bufferInfo, { resolution: [gl.canvas.width, gl.canvas.height] });
 
     if (usePbo) {
-      [readIndex, writeIndex] = readAndWritePbo(gl, pixelBuffers, readIndex, writeIndex, pixels);
+      readAndWritePbo(gl, pixels, pixelBuffers[readIndex], pixelBuffers[writeIndex]);
+      [readIndex, writeIndex] = [writeIndex, readIndex]; // swap
     } else {
       readPixels(gl, pixels);
     }
