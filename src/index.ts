@@ -50,7 +50,7 @@ const createProgram = (gl: WebGL2RenderingContext) => {
   return twgl.createProgramInfo(gl, [VertexShaderSource, FragmentShaderSource]);
 };
 
-const createBuffer = (gl: WebGL2RenderingContext) => {
+const createBufferInfo = (gl: WebGL2RenderingContext) => {
   return twgl.createBufferInfoFromArrays(gl, {
     position: [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0],
   });
@@ -67,7 +67,7 @@ const draw = (
   twgl.drawBufferInfo(gl, bufferInfo);
 };
 
-const readPixelsFromPbo = (
+const readAndWritePbo = (
   gl: WebGL2RenderingContext,
   pixelBuffers: ReadonlyArray<WebGLBuffer>,
   readIndex: number,
@@ -91,12 +91,7 @@ const readPixels = (
   gl.readPixels(0, 0, gl.canvas.width, gl.canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, dstBuffer);
 };
 
-const createApp = () => {
-  const gl = createContext(1024, 1024);
-
-  const programInfo = createProgram(gl);
-  const bufferInfo = createBuffer(gl);
-
+const createPixelBuffers = (gl: WebGL2RenderingContext) => {
   const pixelBuffers: WebGLBuffer[] = [];
   for (let i = 0; i < 2; i++) {
     const pixelBuffer = gl.createBuffer();
@@ -107,10 +102,24 @@ const createApp = () => {
     pixelBuffers.push(pixelBuffer);
   }
 
+  return pixelBuffers;
+};
+
+const createCanvasPixelArray = (gl: WebGL2RenderingContext) => {
+  return new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
+};
+
+const createApp = () => {
+  const gl = createContext(1024, 1024);
+
+  const programInfo = createProgram(gl);
+  const bufferInfo = createBufferInfo(gl);
+  const pixelBuffers = createPixelBuffers(gl);
+
+  const pixels = createCanvasPixelArray(gl);
+  let [readIndex, writeIndex] = [0, 1];
+
   const usePbo = true;
-  const dstBuffer = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
-  let readIndex = 0;
-  let writeIndex = 1;
 
   const render = (t: number) => {
     requestAnimationFrame(render);
@@ -125,9 +134,9 @@ const createApp = () => {
     draw(gl, programInfo, bufferInfo, uniforms);
 
     if (usePbo) {
-      [readIndex, writeIndex] = readPixelsFromPbo(gl, pixelBuffers, readIndex, writeIndex, dstBuffer);
+      [readIndex, writeIndex] = readAndWritePbo(gl, pixelBuffers, readIndex, writeIndex, pixels);
     } else {
-      readPixels(gl, dstBuffer);
+      readPixels(gl, pixels);
     }
   };
 
