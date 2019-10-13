@@ -1,4 +1,4 @@
-import "!style-loader!css-loader?module=false!./index.css";
+import "!style-loader!css-loader?modules=false!./index.css";
 
 import * as twgl from "twgl.js";
 
@@ -139,4 +139,4 @@ const createApp = () => {
   return gl.canvas;
 };
 
-document.body.appendChild(createApp());
+document.body.appendChild(createApp() as Node);
