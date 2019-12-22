@@ -19,7 +19,7 @@ const options = {
         enforce: "pre",
         use: [
           {
-            loader: "tslint-loader",
+            loader: "eslint-loader",
             options: {
               /* Loader options go here */
             }
